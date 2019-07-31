@@ -1,0 +1,45 @@
+# Examples of ci aliases, including splited SVC/CI solutions
+[alias]
+	circleci="!open https://circleci.domain/gh/$(git repo-user)/$(git repo-name)/tree/$(git branch-current) #"
+	gitlab="!open https://gitlab.domain/$(git repo-user)/$(git repo-name)/pipelines#$(git branch-current) #"
+	ci="!git gitlab"
+	# ci="!git circleci"
+	ci-link = "!git remote | grep ci &>/dev/null || git remote add ci git@gitlab.domain:$(git repo-user)/$(git repo-name).git #"
+	ci-trigger = "!branch=$(git rev-parse --abbrev-ref HEAD); git fetch --prune ci &>/dev/null && git push ci --force-with-lease origin/$branch:$branch #"
+	ci-fork = !"f(){ \
+			if [ -z \"$1\" ];then \
+  			echo Missing PR id!;\
+  			exit 1;\
+			fi;\
+			local pr_id=$1;\
+			branch=fork_pr_${pr_id};\
+			git fetch origin pull/${pr_id}/head:${branch};\
+			git ci-link;\
+			git push ci --force-with-lease $branch:$branch; \
+  	}; f "
+
+# Config to always use ssh, including submodules
+# It will allow: git clone cln:namespace/reponame
+[url "git@enterprise-github.client.domain:"]
+	insteadOf = "clientname:"
+	insteadOf = "cln:" #shortclientname
+	insteadOf = https://enterprise-github.client.domain/
+	pushInsteadOf = https://enterprise-github.client.domain/
+
+# Config the namespace that you use often, like your team
+# It will allow: git clone team:reponame
+[url "git@enterprise-github.client.domain:teamNamespace/"]
+	insteadOf = "team:"
+
+# If the clients repo is unsafe
+[http]
+	sslVerify = false
+
+# Those commands will config user for specific folder, where you can keep email
+#  clients, gpg sign and other custom by client folder only.
+[includeIf "gitdir:~/private/"]
+	path = ~/.dotfiles/dotfilesconfidential/.gitconfig-user-private
+[includeIf "gitdir:~/clientFolder/"]
+	path = ~/.dotfiles/dotfilesconfidential/.gitconfig-user
+[includeIf "gitdir:~/go/src/client.domain/"]
+	path = ~/.dotfiles/dotfilesconfidential/.gitconfig-user

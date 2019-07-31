@@ -1,0 +1,3 @@
+# To use it, check the https://help.github.com/en/articles/telling-git-about-your-signing-key
+[user]
+	signingkey = REDACTED
